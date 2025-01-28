@@ -122,8 +122,22 @@ public_users.get('/title/:title',function (req, res) {
 
 //  Get book review
 public_users.get('/review/:isbn',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+    const isbn = req.params.isbn;
+
+    if(isbn) {
+      const bookReviews = books[isbn].reviews;
+      if(bookReviews) {
+          return res.json({reviews: bookReviews});
+          
+      } else {
+  
+          return res.status(404).send({ message: "Book of ISBN " + isbn + " does not exist in our db"});
+  
+      }
+  
+    } 
+    
+    return res.status(404).json({message: "Bad Request Home dawg"});
 });
 
 module.exports.general = public_users;
