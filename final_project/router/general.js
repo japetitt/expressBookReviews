@@ -80,14 +80,16 @@ public_users.get('/author/:author',function (req, res) {
    
     const author = req.params.author;
 
-    if(isbn) {
-      const book = books[isbn];
-      if(book) {
-          return res.send(JSON.stringify(book, null,4));
+    if(author) {
+      const booksByAuthor = Object.values(books).filter(book => book.author.toLowerCase() === author.toLowerCase());
+      
+      if(booksByAuthor.length > 0) {
+         
+        return res.json({message: "Here are the books by "+ author + " ", books: booksByAuthor});
           
       } else {
   
-          return res.status(404).send({ message: "Book of ISBN " + isbn + " does not exist in our db"});
+          return res.status(404).send({ message: "No book by the author " + author + " exists in our db"});
   
       }
   
@@ -98,8 +100,24 @@ public_users.get('/author/:author',function (req, res) {
 
 // Get all books based on title
 public_users.get('/title/:title',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+    const title = req.params.title;
+
+    if(title) {
+      const bookByTitle = Object.values(books).filter(book => book.title.toLowerCase() === title.toLowerCase());
+      
+      if(bookByTitle.length > 0) {
+         
+        return res.json({message: "Here is the book titled "+ title + " ", book: bookByTitle});
+          
+      } else {
+  
+          return res.status(404).send({ message: "No book entitled " + title + " exists in our db"});
+  
+      }
+  
+    } 
+    
+    return res.status(404).json({message: "Bad Request Home dawg"});
 });
 
 //  Get book review
