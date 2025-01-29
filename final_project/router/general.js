@@ -95,50 +95,61 @@ public_users.get('/isbn/:isbn', async function (req, res) {
   });
   
   
-// Get book details based on author
-public_users.get('/author/:author',function (req, res) {
-   
-    const author = req.params.author;
 
-    if(author) {
-      const booksByAuthor = Object.values(books).filter(book => book.author.toLowerCase() === author.toLowerCase());
-      
-      if(booksByAuthor.length > 0) {
-         
-        return res.json({message: "Here are the books by "+ author + " ", books: booksByAuthor});
-          
-      } else {
+// Get book details based on author
+public_users.get('/author/:author', async function (req, res) {
+    const author = req.params.author;
   
-          return res.status(404).send({ message: "No book by the author " + author + " exists in our db"});
-  
+    try {
+      if (!author) {
+        return res.status(400).json({ message: "Bad Request Home dawg" });
       }
   
-    } 
-    
-    return res.status(404).json({message: "Bad Request Home dawg"});
-});
+      // Simulate an async fetch for books by author
+      const fetchBooksByAuthor = async (author) => {
+        return Object.values(books).filter(book => book.author.toLowerCase() === author.toLowerCase());
+      };
+  
+      const booksByAuthor = await fetchBooksByAuthor(author);
+  
+      if (booksByAuthor.length > 0) {
+        return res.json({ message: `Here are the books by ${author}`, books: booksByAuthor });
+      } else {
+        return res.status(404).json({ message: `No book by the author ${author} exists in our database` });
+      }
+    } catch (error) {
+      console.error(error.message);
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  });
+  
 
 // Get all books based on title
-public_users.get('/title/:title',function (req, res) {
+public_users.get('/title/:title', async function (req, res) {
     const title = req.params.title;
-
-    if(title) {
-      const bookByTitle = Object.values(books).filter(book => book.title.toLowerCase() === title.toLowerCase());
-      
-      if(bookByTitle.length > 0) {
-         
-        return res.json({message: "Here is the book titled "+ title + " ", book: bookByTitle});
-          
-      } else {
   
-          return res.status(404).send({ message: "No book entitled " + title + " exists in our db"});
-  
+    try {
+      if (!title) {
+        return res.status(400).json({ message: "Bad Request Home dawg" });
       }
   
-    } 
-    
-    return res.status(404).json({message: "Bad Request Home dawg"});
-});
+      // Simulate an async fetch for books by title
+      const fetchBooksByTitle = async (title) => {
+        return Object.values(books).filter(book => book.title.toLowerCase() === title.toLowerCase());
+      };
+  
+      const bookByTitle = await fetchBooksByTitle(title);
+  
+      if (bookByTitle.length > 0) {
+        return res.json({ message: `Here is the book titled ${title}`, book: bookByTitle });
+      } else {
+        return res.status(404).json({ message: `No book entitled ${title} exists in our database` });
+      }
+    } catch (error) {
+      console.error(error.message);
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  });
 
 //  Get book review
 public_users.get('/review/:isbn',function (req, res) {
