@@ -1,3 +1,5 @@
+
+const axios = require('axios');
 const express = require('express');
 let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
@@ -47,33 +49,51 @@ public_users.post("/register", (req,res) => {
 });
 
 // Get the book list available in the shop
-public_users.get('/',function (req, res) {
+public_users.get('/', async function (req, res) {
+    try {
+      const fetchBooks = async () => {
+        if (books) {
+          return books;
+        } else {
+          throw new Error("Books not found");
+        }
+      };
   
-  let booksJsonString = JSON.stringify(books, null, 4);
+      const bookList = await fetchBooks();
+      res.status(200).json(bookList);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  });
 
-  res.send(booksJsonString)
-});
 
 // Get book details based on ISBN
-public_users.get('/isbn/:isbn',function (req, res) {
-
-  const isbn = req.params.isbn;
-
-  if(isbn) {
-    const book = books[isbn];
-    if(book) {
-        return res.send(JSON.stringify(book, null,4));
-        
-    } else {
-
-        return res.status(404).send({ message: "Book of ISBN " + isbn + " does not exist in our db"});
-
-    }
-
-  } 
+public_users.get('/isbn/:isbn', async function (req, res) {
+    const isbn = req.params.isbn;
   
-  return res.status(404).json({message: "Bad Request Home dawg"});
- });
+    try {
+      if (!isbn) {
+        return res.status(400).json({ message: "Bad Request Home dawg" });
+      }
+  
+      // Simulate an async fetch for book details
+      const fetchBook = async (isbn) => {
+        return books[isbn] || null; // Return the book if it exists, otherwise null
+      };
+  
+      const book = await fetchBook(isbn);
+  
+      if (book) {
+        return res.send(JSON.stringify(book, null, 4));
+      } else {
+        return res.status(404).json({ message: `Book with ISBN ${isbn} does not exist in our database` });
+      }
+    } catch (error) {
+      console.error(error.message);
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  });
+  
   
 // Get book details based on author
 public_users.get('/author/:author',function (req, res) {
